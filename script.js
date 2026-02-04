@@ -1,49 +1,27 @@
-﻿let bpm = 120;
-let playing = false;
-let timer;
+let bpm = 120;
+let isPlaying = false;
+let interval;
+let audioCtx = null;
 
-const bpmText = document.getElementById("bpm");
-const beat = document.getElementById("beat");
+const bpmDisplay = document.getElementById("bpm");
 const playBtn = document.getElementById("play");
+const minusBtn = document.getElementById("minus");
+const plusBtn = document.getElementById("plus");
+const beat = document.getElementById("beat");
 
-function updateBpm() {
-  bpmText.textContent = bpm;
-}
-
-function start() {
-  const interval = 60000 / bpm;
-
-  timer = setInterval(() => {
-    beat.classList.add("active");
-    setTimeout(() => beat.classList.remove("active"), 100);
-  }, interval);
-}
-
-playBtn.onclick = () => {
-  if (!playing) {
-    start();
-    playBtn.textContent = "STOP";
-  } else {
-    clearInterval(timer);
-    playBtn.textContent = "PLAY";
+function playClick() {
+  if (!audioCtx) {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   }
-  playing = !playing;
-};
 
-document.getElementById("plus").onclick = () => {
-  bpm += 5;
-  updateBpm();
-  if (playing) {
-    clearInterval(timer);
-    start();
-  }
-};
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
 
-document.getElementById("minus").onclick = () => {
-  bpm = Math.max(40, bpm - 5);
-  updateBpm();
-  if (playing) {
-    clearInterval(timer);
-    start();
-  }
-};
+  osc.frequency.value = 1000; // nada klik
+  gain.gain.value = 0.3;
+
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+
+  osc.start();
+  osc
